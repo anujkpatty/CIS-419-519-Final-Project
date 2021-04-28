@@ -279,15 +279,16 @@ inputs['Lin_F'] = X_select[finance]
 inputs['Lin_FD'] = X_select[finance+demographics]
 inputs['Lin_FDP'] = X_select[finance+demographics+prior_achievement]
 
-'''# Prepare inputs (polynomial feature expansion)
+# Prepare inputs (polynomial feature expansion)
 inputs['Poly_F'] = PolynomialFeatures(2).fit_transform(X_select[finance])
 inputs['Poly_FD'] = PolynomialFeatures(2).fit_transform(X_select[finance+demographics])
-inputs['Poly_FDP'] = PolynomialFeatures(2).fit_transform(X_select[finance+demographics+prior_achievement])'''
+inputs['Poly_FDP'] = PolynomialFeatures(2).fit_transform(X_select[finance+demographics+prior_achievement])
 
+import sklearn
 from sklearn import model_selection
 
-names = ['Lin_F','Lin_FD','Lin_FDP']
-scoring='r2'
+names = ['Lin_F','Lin_FD','Lin_FDP','Poly_F','Poly_FD','Poly_FDP']
+scoring='neg_root_mean_squared_error'
 results = []
 table = []
 
@@ -312,9 +313,16 @@ plt.savefig("boxplot_r2_comparison.png")
 plt.show()
 
 # table of algorithm comparison
-table2 = pd.DataFrame(data=table,columns=['Model','R2 Score (Min)','R2 Score (Max)','R2 Score (Mean)','R2 Score (Std)'])
+table2 = pd.DataFrame(data=table,columns=['Model','Score (Min)','Score (Max)','Score (Mean)','Score (Std)'])
 print(table2)
-table2.to_csv("overall_r2_comparison.csv",index=False)
+table2.to_csv("overall_score_comparison.csv",index=False)
+
+# Scatterplot of fitted lines
+''' graph 1: scatterplot of data points for the 'prior_achiev' feature
+    and a fitted regression line from Lin_FDP model
+    
+    graph 2: scatterplot of data points for the 'prior_achiev' feature
+    and a fitted regression curve from Poly_FDP curve'''
 
 # Plot actual vs. predictived values
 
@@ -331,5 +339,7 @@ predictions = lm.predict(X_test)
 plt.scatter(y_test, predictions)
 plt.xlabel("True Values")
 plt.ylabel("Predictions")
-
+plt.savefig("scatterplot_predicted_vs_actual.png")
 print ("Score:", model.score(X_test, y_test))
+
+#linear regression+finance features
